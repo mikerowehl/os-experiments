@@ -18,12 +18,21 @@
 stack_bottom:
 .skip 16384 # 16 KiB
 stack_top:
-
 # The kernel entry point.
 .section .text
 .global _start
 .type _start, @function
 _start:
+    lgdt (gdt_pointer)
+    jmp $8, $set_segs
+set_segs:
+    mov $DATA_SEG, %eax
+    mov %eax, %ds
+    mov %eax, %es
+    mov %eax, %fs
+    mov %eax, %gs
+    mov %eax, %ss
+
 	movl $stack_top, %esp
 
 	# Call the global constructors.
@@ -37,3 +46,26 @@ _start:
 1:	hlt
 	jmp 1b
 .size _start, . - _start
+
+gdt_start:
+.byte 0x00, 0x00
+.byte 0x00, 0x00
+.byte 0x00, 0x00
+.byte 0x00, 0x00
+gdt_code:
+.byte 0xff, 0xff
+.byte 0x00, 0x00
+.byte 0x00, 0b10011010
+.byte 0b11001111, 0x00
+gdt_data:
+.byte 0xff, 0xff
+.byte 0x00, 0x00
+.byte 0x00, 0b10010010
+.byte 0b11001111, 0x00
+gdt_end:
+gdt_pointer:
+.word gdt_end - gdt_start
+.long gdt_start
+
+.set CODE_SEG, gdt_code - gdt_start
+.set DATA_SEG, gdt_data - gdt_start
