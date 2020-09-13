@@ -17,6 +17,6 @@ void kernel_main(void) {
 	while (1) {
 		keyIn = inPortB(0x60);
 		charOut = (unsigned char)'a' + (keyIn - 0x1e);
-	  terminal_putchar(charOut);
+		terminal_putchar(charOut);
 	}
 }

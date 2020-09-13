@@ -23,29 +23,55 @@ stack_top:
 .global _start
 .type _start, @function
 _start:
-    lgdt (gdt_pointer)
-    jmp $8, $set_segs
+  lgdt (gdt_pointer)
+  jmp $8, $set_segs
 set_segs:
-    mov $DATA_SEG, %eax
-    mov %eax, %ds
-    mov %eax, %es
-    mov %eax, %fs
-    mov %eax, %gs
-    mov %eax, %ss
+  mov $DATA_SEG, %eax
+  mov %eax, %ds
+  mov %eax, %es
+  mov %eax, %fs
+  mov %eax, %gs
+  mov %eax, %ss
 
-	movl $stack_top, %esp
+  movl $stack_top, %esp
 
-	# Call the global constructors.
-	call _init
+  call do_test
 
-	# Transfer control to the main kernel.
-	call kernel_main
+  # Call the global constructors.
+  call _init
 
-	# Hang if kernel_main unexpectedly returns.
-	cli
-1:	hlt
-	jmp 1b
+  # Transfer control to the main kernel.
+  call kernel_main
+
+  # Hang if kernel_main unexpectedly returns.
+  cli
+1:
+  hlt
+  jmp 1b
 .size _start, . - _start
+
+int_handler:
+  mov $0x123abc, 0x0 // this places magic value "0x123abc" at the beginning of memory
+  hlt
+
+.p2align 4
+idt:
+  .skip 50*8
+
+idtr:
+  .word (50*8)-1
+  .long idt
+
+.globl do_test
+do_test:
+  lidt idtr
+  mov $int_handler, %eax
+  mov %ax, idt+49*8
+  movw $0x08, idt+49*8+2 // replace 0x20 with your code section selector
+  movw $0x8e00, idt+49*8+4
+  shr $16, %eax
+  mov %ax, idt+49*8+6
+  int $49
 
 gdt_start:
 .byte 0x00, 0x00
