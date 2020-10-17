@@ -15,8 +15,9 @@ void kernel_main(void) {
 	terminal_initialize();
 	printf("Hello, kernel World!\n");
 	while (1) {
-		keyIn = inPortB(0x60);
-		charOut = (unsigned char)'a' + (keyIn - 0x1e);
-		terminal_putchar(charOut);
+		// keyIn = inPortB(0x60);
+		// charOut = (unsigned char)'a' + (keyIn - 0x1e);
+		// terminal_putchar(charOut);
+		__asm__ __volatile__ ("hlt");
 	}
 }

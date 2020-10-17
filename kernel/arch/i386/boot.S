@@ -51,8 +51,15 @@ set_segs:
 .size _start, . - _start
 
 int_handler:
-  mov $0x123abc, 0x0 // this places magic value "0x123abc" at the beginning of memory
-  hlt
+  // mov $0x123abc, 0x0 // this places magic value "0x123abc" at the beginning of memory
+  pusha
+  in $0x60, %al
+  mov $0xf, %ah
+  mov %ax, 0xB8000 
+  mov $0x20, %al
+  out %al, $0x20
+  popa
+  iret
 
 .p2align 4
 idt:
@@ -66,12 +73,57 @@ idtr:
 do_test:
   lidt idtr
   mov $int_handler, %eax
-  mov %ax, idt+49*8
-  movw $0x08, idt+49*8+2 // replace 0x20 with your code section selector
-  movw $0x8e00, idt+49*8+4
+  mov %ax, idt+33*8
+  movw $0x08, idt+33*8+2 // replace 0x20 with your code section selector
+  movw $0x8e00, idt+33*8+4
   shr $16, %eax
-  mov %ax, idt+49*8+6
-  int $49
+  mov %ax, idt+33*8+6
+  // int $33
+
+.set PICU1, 0x20
+.set PICU2, 0xa0
+
+setup8259:
+  mov $0x11, %al
+  out %al, $PICU1
+  push %eax
+  pop %eax
+  out %al, $PICU2
+  push %eax
+  pop %eax
+  mov $0x20, %al
+  out %al,$PICU1+1
+  push %eax
+  pop %eax
+  mov $0x28, %al
+  out %al, $PICU2+1
+  push %eax
+  pop %eax
+  mov $0x04, %al
+  out %al,$PICU1+1
+  push %eax
+  pop %eax
+  mov $0x02, %al
+  out %al,$PICU2+1
+  push %eax
+  pop %eax
+  mov $0x01, %al
+  out %al,$PICU1+1
+  push %eax
+  pop %eax
+  out %al,$PICU2+1
+  push %eax
+  pop %eax
+  mov $0xfd, %al
+  out %al,$PICU1+1
+  push %eax
+  pop %eax
+  mov $0xff, %al
+  out %al,$PICU2+1
+  push %eax
+  pop %eax
+  sti
+  ret
 
 gdt_start:
 .byte 0x00, 0x00
