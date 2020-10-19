@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include <kernel/tty.h>
+#include <kernel/pic.h>
 
 unsigned char inPortB (unsigned short _port) {
     unsigned char rv;
@@ -13,6 +14,7 @@ void kernel_main(void) {
 	unsigned char charOut;
 
 	terminal_initialize();
+	pic_initialize(0x20, 0x28);
 	printf("Hello, kernel World!\n");
 	while (1) {
 		// keyIn = inPortB(0x60);

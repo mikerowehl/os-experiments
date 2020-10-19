@@ -339,49 +339,6 @@ do_test:
   shr $16, %eax
   mov %ax, idt+33*8+6
   // int $33
-
-.set PICU1, 0x20
-.set PICU2, 0xa0
-
-setup8259:
-  mov $0x11, %al
-  out %al, $PICU1
-  push %eax
-  pop %eax
-  out %al, $PICU2
-  push %eax
-  pop %eax
-  mov $0x20, %al
-  out %al,$PICU1+1
-  push %eax
-  pop %eax
-  mov $0x28, %al
-  out %al, $PICU2+1
-  push %eax
-  pop %eax
-  mov $0x04, %al
-  out %al,$PICU1+1
-  push %eax
-  pop %eax
-  mov $0x02, %al
-  out %al,$PICU2+1
-  push %eax
-  pop %eax
-  mov $0x01, %al
-  out %al,$PICU1+1
-  push %eax
-  pop %eax
-  out %al,$PICU2+1
-  push %eax
-  pop %eax
-  mov $0xfd, %al
-  out %al,$PICU1+1
-  push %eax
-  pop %eax
-  mov $0xff, %al
-  out %al,$PICU2+1
-  push %eax
-  pop %eax
   sti
   ret
 
