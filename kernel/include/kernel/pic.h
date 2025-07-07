@@ -3,6 +3,6 @@
 
 #include <stddef.h>
 
-void pic_intialize(int offset1, int offset2);
+void pic_initialize(int offset1, int offset2);
 
 #endif
